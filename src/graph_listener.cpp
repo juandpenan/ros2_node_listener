@@ -13,37 +13,36 @@ using namespace std::chrono_literals;
 std::thread start_graph_thread(rclcpp::Node::SharedPtr node)
 {
   auto thread_fn =
-    [&node]()
+    [node]()
     {
       auto logger = node->get_logger();
+      auto graph_event = node->get_graph_event();
       RCLCPP_INFO(logger, "GRAPH THREAD started...");
       while (rclcpp::ok())
       {
-          auto graph_event = node->get_graph_event();
-          node->wait_for_graph_change(graph_event, 100ms);
-          bool triggered = graph_event->check_and_clear();
-          if (triggered)
-          {
+        node->wait_for_graph_change(graph_event, 100ms);
+        bool triggered = graph_event->check_and_clear();
+        if (triggered)
+        {
+            RCLCPP_INFO(logger,
+              "GRAPH_CHANGED:");
+            RCLCPP_INFO(logger,
+              "    pub.count = %lu", node->count_publishers("chatter"));
+            RCLCPP_INFO(logger,
+              "    sub.count = %lu", node->count_subscribers("chatter"));
+            RCLCPP_INFO(logger,
+              "    nodes:");
+            auto nodes = node->get_node_names();
+            for (auto it = nodes.begin(); it != nodes.end(); it++)
+            {
               RCLCPP_INFO(logger,
-                "GRAPH_CHANGED:");
-              RCLCPP_INFO(logger,
-                "    pub.count = %lu", node->count_publishers("chatter"));
-              RCLCPP_INFO(logger,
-                "    sub.count = %lu", node->count_subscribers("chatter"));
-              RCLCPP_INFO(logger,
-                "    nodes:");
-              auto nodes = node->get_node_names();
-              for (auto it = nodes.begin(); it != nodes.end(); it++)
-              {
-                RCLCPP_INFO(logger,
-                  "        %s", it->c_str());
-              }
-          }
+                "        %s", it->c_str());
+            }
+        }
       }
       RCLCPP_INFO(logger, "GRAPH THREAD stopped.");
     };
-  std::thread graph_thread(thread_fn);
-  return graph_thread;
+  return std::thread(thread_fn);
 }
 
 
