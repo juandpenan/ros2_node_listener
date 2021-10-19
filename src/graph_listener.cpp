@@ -6,8 +6,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "example_interfaces/msg/string.hpp"
 
-#include "node_listener/node_listener.hpp"
-
 using namespace std::chrono_literals;
 
 std::thread start_graph_thread(rclcpp::Node::SharedPtr node)
