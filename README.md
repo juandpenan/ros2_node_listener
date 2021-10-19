@@ -35,8 +35,8 @@ timers, etc...), "graph changed" events cannot be dispatched by an executor,
 and they thus require the application to spawn a thread to call
 `rclcpp::Node::wait_for_graph_change()` in parallel to a spinning executor.
 
-The example only demonstrates how to wait for graph events from the `main()`
-thread.
+**WARNING**: it appears that there is a critical race condition in `rclcpp`
+which may cause `graph_listener` to terminate with a segmentation fault.
 
 ## Build & Run
 
