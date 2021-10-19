@@ -11,9 +11,6 @@ using namespace std::chrono_literals;
 
 int main(int argc, char ** argv)
 {
-  // Force flush of the stdout buffer.
-  setvbuf(stdout, NULL, _IONBF, BUFSIZ);
-
   rclcpp::init(argc, argv);
 
   auto node = rclcpp::Node::make_shared("graph_listener");
