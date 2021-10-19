@@ -18,15 +18,11 @@ int main(int argc, char ** argv)
   auto graph_event = node->get_graph_event();
 
   rclcpp::QoS qos(1);
-
   std::string topic_name = "chatter";
 
-  // Create a publisher and a subscription with incompatible QoS
-  qos.best_effort();
   auto pub = node->create_publisher<example_interfaces::msg::String>(
     topic_name, qos);
 
-  qos.reliable();
   auto data_callback =
       [node](example_interfaces::msg::String::ConstSharedPtr msg) -> void
       {
