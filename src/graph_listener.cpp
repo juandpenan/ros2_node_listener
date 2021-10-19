@@ -40,7 +40,6 @@ std::thread start_graph_thread(rclcpp::Node::SharedPtr node)
             }
         }
       }
-      RCLCPP_INFO(logger, "GRAPH THREAD stopped.");
     };
   return std::thread(thread_fn);
 }
