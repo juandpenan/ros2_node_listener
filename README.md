@@ -73,10 +73,15 @@ thread.
 5. Run `graph_listener` example:
 
    ```sh
-   ros2 run node_listener graph_listener
+   # Start listener in backgroun
+   ros2 run node_listener graph_listener &
 
-   # In another terminal, generate some "graph changes" with `ros2 topic pub`
+   # Generate some "graph changes" with `ros2 topic pub`
    ros2 topic pub "chatter" example_interfaces/msg/String
 
-   # Use ^C to terminate
+   # Use ^C to terminate the publisher (more changes will print)
+  
+   # Terminate listener
+   fg
+   # then ^C
    ```
