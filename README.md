@@ -16,7 +16,8 @@ Each callback must be specified through the options data-structures (
 the endpoints.
 
 The example uses a custom helper "listener class" to demonstrate how to tie
-this events with any custom C++ object.
+this events with any custom C++ object. See
+[node_listener.hpp](include/node_listener/node_listener.hpp).
 
 In order to receive these notification the `Node` and its endpoints must be
 attached to a spinning executor.
