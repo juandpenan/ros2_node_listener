@@ -17,7 +17,7 @@
 #include <thread>
 
 #include "rclcpp/rclcpp.hpp"
-#include "example_interfaces/msg/string.hpp"
+#include "std_msgs/msg/empty.hpp"
 
 using namespace std::chrono_literals;
 
@@ -28,6 +28,10 @@ std::thread start_graph_thread(rclcpp::Node::SharedPtr node)
     {
       auto logger = node->get_logger();
       auto graph_event = node->get_graph_event();
+  // size_t pub_count = 0;
+
+      auto pub = node->create_publisher<std_msgs::msg::Empty>(
+        "ros_graph_update", 1);
       RCLCPP_INFO(logger, "GRAPH THREAD started...");
       while (rclcpp::ok())
       {
@@ -35,21 +39,11 @@ std::thread start_graph_thread(rclcpp::Node::SharedPtr node)
         bool triggered = graph_event->check_and_clear();
         if (triggered)
         {
-            RCLCPP_INFO(logger,
-              "GRAPH_CHANGED:");
-            RCLCPP_INFO(logger,
-              "    pub.count = %lu", node->count_publishers("chatter"));
-            RCLCPP_INFO(logger,
-              "    sub.count = %lu", node->count_subscribers("chatter"));
-            RCLCPP_INFO(logger,
-              "    nodes:");
-            auto nodes = node->get_node_names();
-            for (auto it = nodes.begin(); it != nodes.end(); it++)
-            {
-              RCLCPP_INFO(logger,
-                "        %s", it->c_str());
-            }
+          RCLCPP_INFO(logger, "GRAPH THREAD triggered...");
+          auto msg = std::make_unique<std_msgs::msg::Empty>();
+          pub->publish(std::move(msg));
         }
+        rclcpp::sleep_for(750ms);
       }
     };
   return std::thread(thread_fn);
@@ -61,29 +55,6 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
 
   auto node = rclcpp::Node::make_shared("graph_listener");
-
-  rclcpp::QoS qos(1);
-  size_t pub_count = 0;
-
-  auto pub = node->create_publisher<example_interfaces::msg::String>(
-    "chatter", qos);
-
-  auto pub_timer = node->create_wall_timer(5s,
-    [node, pub, &pub_count]() -> void
-    {
-      auto msg = std::make_unique<example_interfaces::msg::String>();
-      msg->data = "Hello World: " + std::to_string(pub_count++);
-      RCLCPP_INFO(node->get_logger(), "Publishing: '%s'", msg->data.c_str());
-      pub->publish(std::move(msg));
-    });
-
-  auto data_callback =
-      [node](example_interfaces::msg::String::ConstSharedPtr msg) -> void
-      {
-        RCLCPP_INFO(node->get_logger(), "I heard: [%s]", msg->data.c_str());
-      };
-  auto sub = node->create_subscription<example_interfaces::msg::String>(
-    "chatter", qos, data_callback);
 
   auto graph_thread = start_graph_thread(node);
 
