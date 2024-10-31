@@ -43,7 +43,7 @@ std::thread start_graph_thread(rclcpp::Node::SharedPtr node)
           auto msg = std::make_unique<std_msgs::msg::Empty>();
           pub->publish(std::move(msg));
         }
-        rclcpp::sleep_for(750ms);
+        rclcpp::sleep_for(1s);
       }
     };
   return std::thread(thread_fn);

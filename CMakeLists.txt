@@ -7,50 +7,53 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclpy REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(example_interfaces REQUIRED)
-# find_package(ament_cmake_python REQUIRED)
-# find_package(rclpy REQUIRED)
 
 
-function(build_executable exec_name)
-  add_executable(${exec_name} src/${exec_name}.cpp)
-  target_include_directories(${exec_name} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
-  target_compile_features(${exec_name} PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
-  ament_target_dependencies(
-    ${exec_name}
-    "rclcpp"
-    "std_msgs"
-    "example_interfaces"
-  )
-  install(TARGETS ${exec_name}
-    DESTINATION lib/${PROJECT_NAME})
-endfunction()
+set(dependencies
+    rclcpp
+    std_msgs
+    example_interfaces
+)
+
+add_executable(graph_listener src/graph_listener.cpp)
+ament_target_dependencies(graph_listener ${dependencies})
 
 
-ament_python_install_package(${PROJECT_NAME})
+install(TARGETS
+  graph_listener
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
+ament_python_install_package(node_listener)
   
   
 # build_executable(events_listener)
 # build_executable(graph_listener)
 install(PROGRAMS
-  scripts/graph_main.py
+  node_listener/graph_builder.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
 
-# if(BUILD_TESTING)
-#   find_package(ament_lint_auto REQUIRED)
-#   # the following line skips the linter which checks for copyrights
-#   # uncomment the line when a copyright and license is not present in all source files
-#   #set(ament_cmake_copyright_FOUND TRUE)
-#   # the following line skips cpplint (only works in a git repo)
-#   # uncomment the line when this package is not in a git repo
-#   #set(ament_cmake_cpplint_FOUND TRUE)
-#   ament_lint_auto_find_test_dependencies()
-# endif()
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  # the following line skips the linter which checks for copyrights
+  # uncomment the line when a copyright and license is not present in all source files
+  #set(ament_cmake_copyright_FOUND TRUE)
+  # the following line skips cpplint (only works in a git repo)
+  # uncomment the line when this package is not in a git repo
+  #set(ament_cmake_cpplint_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
+ament_export_dependencies(${dependencies})
+
 ament_package()
 
